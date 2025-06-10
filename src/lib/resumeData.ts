@@ -143,6 +143,46 @@ export const resumeData: ResumeData = {
         "Championed the team's DevOps adoption by building and implementing automated CI/CD pipelines with Jenkins."
       ],
       tech: ["Angular", "NgRX", "Java (Spring Boot)", "Node.js", "Microservices", "Jenkins"]
+    },
+    {
+      role: "Senior Program Analyst",
+      company: "Scotiabank",
+      type: "Permanent",
+      date: "Apr 2017 - Jan 2018",
+      location: "Toronto, ON",
+      details: [
+        "Architected and executed the transformation of a critical middle office accounting application from monolithic to microservice-oriented architecture, improving system modularity and maintainability.",
+        "Designed and implemented modern frontend components using Angular and TypeScript, enhancing user experience and application performance.",
+        "Developed scalable backend services using Java Spring Boot, establishing robust API layers for improved system integration."
+      ],
+      tech: ["Angular", "TypeScript", "JavaScript", "Java (Spring Boot)", "Microservices"]
+    },
+    {
+      role: "Software Developer",
+      company: "IBM Canada",
+      type: "Permanent",
+      date: "Apr 2014 - Apr 2017",
+      location: "Markham, ON",
+      details: [
+        "Designed and implemented a comprehensive web console for IBM's managed DB2 cloud service (dashDB), delivering an intuitive interface for database management and monitoring.",
+        "Pioneered containerization initiatives and established CI/CD pipelines for managed DB2 services using Concourse CI and UCD, significantly improving deployment efficiency.",
+        "Enhanced DB2 optimizer performance by implementing advanced costing models for Hashjoin and Tablescan operators in the DB2 columnar database engine.",
+        "Developed an innovative internal code coverage analysis tool providing statement-level coverage metrics for DB2 development teams, improving code quality assurance."
+      ],
+      tech: ["Angular", "JavaScript", "TypeScript", "Java", "Dojo", "Node.js", "Python", "C/C++", "Perl", "Concourse CI", "UCD"]
+    },
+    {
+      role: "Intern Software Developer",
+      company: "IBM Canada",
+      type: "Internship",
+      date: "May 2009 - Aug 2010, May 2012 - Jul 2013",
+      location: "Markham, ON",
+      details: [
+        "Developed and refactored critical DB2 support and diagnostic tools including DB2Support, DB2Diag parser, and DB2PD, improving system troubleshooting capabilities.",
+        "Contributed to software development and comprehensive system testing for IBM WebSphere Commerce shopping platform, ensuring robust e-commerce functionality.",
+        "Collaborated with senior developers to implement performance optimizations and bug fixes across multiple DB2 components."
+      ],
+      tech: ["C/C++", "Java", "Perl", "DB2", "WebSphere Commerce"]
     }
   ],
   education: [
