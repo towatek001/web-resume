@@ -213,7 +213,6 @@ export const exportToDocx = async (resumeData: ResumeData) => {
         new Paragraph({ 
           text: "Core Technical Skills", 
           heading: HeadingLevel.HEADING_1, 
-          border: { bottom: { color: "auto", space: 1, value: "single", size: 6 } }, 
           spacing: { after: 100 } 
         }),
         new Table({

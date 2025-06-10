@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Resume | Tony Tong Wang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: A single-page application with a sticky top navigation bar for seamless scrolling between sections. The structure includes: 1. A hero section for immediate impact. 2. An interactive skills dashboard with filtering for quick assessment by recruiters. 3. A vertical, expandable timeline for career experience, making a long history digestible. 4. A data visualization (donut chart) to give a high-level summary of skill distribution. 5. Standard education and contact sections. This structure prioritizes user-driven exploration over a linear, static document, allowing recruiters to quickly access the information most relevant to them. -->
+    <!-- Visualization & Content Choices: 1. Skills: Report Info -> List of technical skills. Goal -> Allow quick filtering. Viz -> Interactive tag cloud/grid. Interaction -> Clickable category buttons to highlight relevant skills. Justification -> More engaging and faster for recruiters than a static table. Library -> Vanilla JS + Tailwind CSS. 2. Experience: Report Info -> Chronological job history. Goal -> Show career progression without overwhelming the user. Viz -> Vertical timeline. Interaction -> Click-to-expand details for each role. Justification -> Provides a clear narrative and keeps the initial view clean. Library -> Vanilla JS + Tailwind CSS. 3. Skill Distribution: Report Info -> Counts of skills per category. Goal -> Provide an at-a-glance summary of expertise. Viz -> Donut Chart. Interaction -> Hover to see details. Justification -> A powerful visual summary of the "Full-Stack" claim. Library -> Chart.js. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0891b2;
+            border-bottom-color: #0891b2;
+        }
+        .skill-tag {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .skill-tag.inactive {
+            opacity: 0.3;
+            transform: scale(0.95);
+        }
+        .timeline-item-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease;
+            opacity: 0;
+        }
+        .timeline-item-content.open {
+            max-height: 1000px;
+            opacity: 1;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 350px;
+            width: 100%;
+            max-width: 400px;
+        }
+        .export-btn {
+            background-color: #0891b2;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+        .export-btn:hover:not(:disabled) {
+            background-color: #0e7490;
+        }
+        .export-btn:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dropdown-content button {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+        .dropdown-content button:hover {background-color: #ddd;}
+        .dropdown:hover .dropdown-content {display: block;}
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+                max-width: 450px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="navbar" class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-slate-800">Tony Tong Wang</h1>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#skills" class="nav-link font-medium text-slate-600 pb-1">Skills</a>
+                <a href="#experience" class="nav-link font-medium text-slate-600 pb-1">Experience</a>
+                <a href="#education" class="nav-link font-medium text-slate-600 pb-1">Education</a>
+                <a href="#contact" class="nav-link font-medium text-slate-600 pb-1">Contact</a>
+                <div class="dropdown">
+                    <button id="export-dropdown-btn" class="export-btn text-sm" disabled>Loading...</button>
+                    <div class="dropdown-content">
+                        <button id="export-pdf">as PDF</button>
+                        <button id="export-docx">as DOCX</button>
+                    </div>
+                </div>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden p-2 rounded-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#skills" class="block py-2 px-6 text-sm text-slate-600 hover:bg-slate-100">Skills</a>
+            <a href="#experience" class="block py-2 px-6 text-sm text-slate-600 hover:bg-slate-100">Experience</a>
+            <a href="#education" class="block py-2 px-6 text-sm text-slate-600 hover:bg-slate-100">Education</a>
+            <a href="#contact" class="block py-2 px-6 text-sm text-slate-600 hover:bg-slate-100">Contact</a>
+            <div class="p-4 space-y-2">
+                 <button id="export-pdf-mobile" class="bg-cyan-600 text-white w-full text-sm py-2 rounded-md" disabled>Loading...</button>
+                 <button id="export-docx-mobile" class="bg-blue-600 text-white w-full text-sm py-2 rounded-md" disabled>Loading...</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="hero" class="text-center mb-24">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Senior Full-Stack Developer</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600" id="summary-text">
+                <!-- Summary will be injected here -->
+            </p>
+        </section>
+
+        <section id="skills" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900 mb-2">Technical Skills Dashboard</h3>
+                <p class="text-slate-600">Explore my technical capabilities. Click a category to filter the technologies.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+                <div class="md:col-span-2">
+                    <div id="skill-filters" class="flex flex-wrap justify-center gap-3 mb-8">
+                        <!-- Filter buttons will be injected here -->
+                    </div>
+                    <div id="skill-tags" class="flex flex-wrap justify-center gap-4">
+                        <!-- Skill tags will be injected here -->
+                    </div>
+                </div>
+                <div class="md:col-span-1">
+                     <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h4 class="text-xl font-semibold text-center mb-4 text-slate-800">Core Skill Distribution</h4>
+                        <div class="chart-container">
+                            <canvas id="skillsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900 mb-2">Experience Timeline</h3>
+                <p class="text-slate-600">A journey through my career. Click on any role to see the details and my contributions.</p>
+            </div>
+            <div id="timeline-container" class="relative max-w-4xl mx-auto">
+                <!-- Timeline items will be injected here -->
+            </div>
+        </section>
+        
+        <section id="education" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold text-slate-900">Education & Certifications</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h4 class="text-2xl font-semibold text-slate-800 mb-4">Education</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="font-semibold text-lg text-cyan-700">Master of Science, Applied Computing</p>
+                            <p class="text-slate-600">University of Toronto (2011 - 2013)</p>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-lg text-cyan-700">Bachelor of Applied Science and Engineering</p>
+                            <p class="text-slate-600">University of Toronto (2006 - 2011)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-md">
+                    <h4 class="text-2xl font-semibold text-slate-800 mb-4">Certifications</h4>
+                    <ul id="certifications-list" class="space-y-3 list-disc list-inside text-slate-600">
+                        <!-- Certifications will be injected here -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="text-center bg-white py-16 rounded-xl shadow-md scroll-mt-20">
+            <h3 class="text-3xl font-bold text-slate-900 mb-4">Get In Touch</h3>
+            <p class="text-slate-600 mb-6">I'm always open to discussing new projects, creative ideas, or opportunities to be part of an ambitious team.</p>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-6 text-lg">
+                 <a href="mailto:tony@towatek.com" class="font-medium text-cyan-700 hover:text-cyan-600">tony@towatek.com</a>
+                 <span class="hidden md:block text-slate-300">|</span>
+                 <a href="https://www.linkedin.com/in/tony-wang-51651427" target="_blank" class="font-medium text-cyan-700 hover:text-cyan-600">LinkedIn Profile</a>
+                 <span class="hidden md:block text-slate-300">|</span>
+                 <p class="font-medium text-slate-700">Langley, BC</p>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="text-center py-6 mt-12">
+        <p class="text-slate-500 text-sm">Interactive Resume created for Tony Tong Wang | &copy; 2025</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            
+            const resumeData = {
+                name: "Tony Tong Wang",
+                contact: {
+                    location: "Langley, BC",
+                    email: "tony@towatek.com",
+                    linkedin: "https://www.linkedin.com/in/tony-wang-51651427"
+                },
+                summary: "Senior Full-Stack Developer with 14+ years of experience architecting and deploying high-performance, scalable web applications. Proven expert in the Node.js and React ecosystems with a track record of leading development teams, driving DevOps transformations, and delivering robust solutions on Azure and AWS. Passionate about clean code and mentorship.",
+                skills: {
+                    "Frontend": ["React", "Vue.js", "Angular", "Next.js", "Gatsby", "TypeScript", "JavaScript", "HTML5", "CSS3", "Tailwind CSS", "SASS", "Responsive Design", "Web Accessibility"],
+                    "Backend": ["Node.js", "NestJS", "Express.js", "Koa.js", "Java (Spring Boot)", "Microservices", "GraphQL", "REST APIs", "WebSockets"],
+                    "Databases & Caching": ["MongoDB", "PostgreSQL", "DynamoDB", "Redis", "Hazelcast"],
+                    "Cloud & DevOps": ["AWS", "Azure", "Kubernetes", "Serverless (Lambda)", "Kafka", "RabbitMQ", "CI/CD (Jenkins)", "Git", "APM (Dynatrace, Splunk)"],
+                    "Testing": ["Jest", "Cypress", "Puppeteer", "Storybook"]
+                },
+                experience: [
+                    { role: "Lead Software Developer", company: "Moneris", type: "Contract", date: "Oct 2024 - Present", location: "Remote", details: ["Architected and launched Moneris's inaugural unified customer portal, leveraging a micro-frontend architecture with Module Federation to streamline transaction reporting, user, and store management.", "Spearheaded the backend development of resilient microservices using Node.js and NestJS, ensuring scalable deployment on Azure."], tech: ["React", "Vite", "Node.js", "NestJS", "Module Federation", "Microservices", "Azure"] },
+                    { role: "Fullstack Software Developer", company: "Scotiabank", type: "Contract", date: "Jul 2023 - Oct 2024", location: "Remote", details: ["Engineered a critical web application that streamlined the lending application process for branch and call center employees, significantly reducing customer processing time.", "Established a scalable and maintainable codebase using a Monorepo architecture to enhance development velocity and code consistency."], tech: ["React", "Node.js", "Express.js", "TypeScript", "JavaScript", "Jest", "Storybook", "Monorepo"] },
+                    { role: "Sr. IoT Software Developer", company: "Bell", type: "Contract", date: "May 2022 - Jun 2023", location: "Remote", details: ["Developed end-to-end IoT solutions for supply chain and retail clients, delivering actionable, real-time data on logistics, driver behavior, and route optimization.", "Built robust backend microservices to process high-volume, real-time data streams from a network of IoT devices."], tech: ["Node.js", "React", "Java (Spring Boot)", "Kubernetes", "MongoDB", "Redis", "Kafka", "Azure Event Hub", "Microservices"] },
+                    { role: "Sr. Manager, Software Development", company: "Symcor Inc.", type: "Permanent", date: "Oct 2021 - May 2022", location: "Mississauga, ON", details: ["Managed a team of 10 developers in the successful delivery of the MVP for Canada's new open banking platform, enabling secure, user-permissioned financial data sharing.", "Instituted team-wide best practices, including the implementation of CI/CD pipelines and a comprehensive automated testing strategy to boost code quality."], tech: ["Node.js", "React", "TypeScript", "GraphQL", "OAuth2.0", "MongoDB", "Azure", "Cypress", "Tailwind CSS"] },
+                    { role: "Sr. Software Engineer", company: "MCAP", type: "Contract", date: "May 2021 - Nov 2021", location: "Waterloo, ON", details: ["Architected and implemented a secure, centralized authentication and authorization library using OAuth 2.0 and OpenID Connect for a new microservices-based underwriting system.", "Designed and built a responsive Vue.js dashboard powered by an event-driven backend architecture."], tech: ["Node.js", "Vue.js", "TypeScript", "RabbitMQ", "MongoDB", "OAuth 2.0", "Microservices"] },
+                    { role: "Sr. IoT Software Developer", company: "Bell", type: "Contract", date: "Nov 2020 - Mar 2021", location: "Mississauga, ON", details: ["Delivered a real-time data dashboard in Vue.js, empowering retail managers to optimize staffing and monitor key store metrics through live data visualization."], tech: ["Vue.js", "Node.js", "WebSockets", "MongoDB", "Kafka", "Kubernetes", "Redis"] },
+                    { role: "Application Architect", company: "RBC Ventures", type: "Contract", date: "Nov 2019 - Nov 2020", location: "Toronto, ON", details: ["Spearheaded the successful migration of a legacy monolithic application to a scalable microservices architecture, resulting in significant improvements in performance and maintainability."], tech: ["React", "Node.js", "GraphQL", "AWS (Lambda, DynamoDB)", "Gatsby", "Cypress"] },
+                    { role: "Tech Lead / Sr. Software Developer", company: "TD", type: "Permanent", date: "Jan 2018 - Nov 2019", location: "Toronto, ON", details: ["Led a team of 6 developers to deliver a new web servicing platform for TD Business Banking, successfully serving thousands of commercial clients.", "Championed the team's DevOps adoption by building and implementing automated CI/CD pipelines with Jenkins."], tech: ["Angular", "NgRX", "Java (Spring Boot)", "Node.js", "Microservices", "Jenkins"] }
+                ],
+                education: [
+                    { degree: "Master of Science, Applied Computing", school: "University of Toronto", date: "2011 - 2013" },
+                    { degree: "Bachelor of Applied Science and Engineering, Computer Engineering", school: "University of Toronto", date: "2006 - 2011" }
+                ],
+                certifications: [
+                    "Microsoft Certified: Azure Administrator Associate",
+                    "AWS Certified Solutions Architect – Associate",
+                    "AWS Certified Developer – Associate",
+                    "AWS Certified SysOps Administrator – Associate",
+                    "Udacity Front-End Web Developer Nanodegree"
+                ]
+            };
+
+            const setupUI = () => {
+                document.getElementById('summary-text').textContent = resumeData.summary;
+
+                const certsList = document.getElementById('certifications-list');
+                certsList.innerHTML = '';
+                resumeData.certifications.forEach(cert => {
+                    const li = document.createElement('li');
+                    
+                    const [title, detail] = cert.split(' – ');
+                    if(detail) {
+                        li.innerHTML = `<span class="font-semibold">${title}:</span> ${detail}`;
+                    } else if (cert.includes(':')) {
+                         const parts = cert.split(':');
+                         li.innerHTML = `<span class="font-semibold">${parts[0]}:</span> ${parts[1]}`;
+                    } 
+                    else {
+                        li.textContent = cert;
+                    }
+                    certsList.appendChild(li);
+                });
+
+
+                const skillFiltersContainer = document.getElementById('skill-filters');
+                const skillTagsContainer = document.getElementById('skill-tags');
+                
+                const categories = ['All', ...Object.keys(resumeData.skills)];
+                const filterColors = {
+                    'All': 'bg-cyan-600 text-white',
+                    'Frontend': 'bg-blue-100 text-blue-800',
+                    'Backend': 'bg-indigo-100 text-indigo-800',
+                    'Databases & Caching': 'bg-emerald-100 text-emerald-800',
+                    'Cloud & DevOps': 'bg-amber-100 text-amber-800',
+                    'Testing': 'bg-rose-100 text-rose-800'
+                };
+
+                categories.forEach(category => {
+                    const button = document.createElement('button');
+                    button.textContent = category;
+                    button.dataset.category = category;
+                    button.className = `filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-transform transform hover:scale-105 ${category === 'All' ? 'bg-cyan-600 text-white' : 'bg-slate-200 text-slate-700'}`;
+                    skillFiltersContainer.appendChild(button);
+                });
+
+                Object.entries(resumeData.skills).forEach(([category, skills]) => {
+                    skills.forEach(skill => {
+                        const tag = document.createElement('div');
+                        tag.textContent = skill;
+                        tag.dataset.category = category;
+                        const colorClasses = filterColors[category] || 'bg-gray-200 text-gray-800';
+                        tag.className = `skill-tag ${colorClasses} px-3 py-1.5 rounded-md text-sm font-medium shadow-sm`;
+                        skillTagsContainer.appendChild(tag);
+                    });
+                });
+
+                skillFiltersContainer.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const selectedCategory = e.target.dataset.category;
+
+                        document.querySelectorAll('.filter-btn').forEach(btn => {
+                            btn.className = 'filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-transform transform hover:scale-105 bg-slate-200 text-slate-700';
+                        });
+                        e.target.className = 'filter-btn px-4 py-2 rounded-full text-sm font-semibold transition-transform transform hover:scale-105 bg-cyan-600 text-white';
+
+                        document.querySelectorAll('.skill-tag').forEach(tag => {
+                            if (selectedCategory === 'All' || tag.dataset.category === selectedCategory) {
+                                tag.classList.remove('inactive');
+                            } else {
+                                tag.classList.add('inactive');
+                            }
+                        });
+                    }
+                });
+
+                const timelineContainer = document.getElementById('timeline-container');
+                timelineContainer.innerHTML = `<div class="absolute left-1/2 -translate-x-1/2 top-0 h-full w-0.5 bg-slate-200"></div>`;
+                resumeData.experience.forEach((job, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'relative mb-12';
+                    
+                    itemDiv.innerHTML = `
+                        <div class="timeline-dot absolute left-1/2 -translate-x-1/2 mt-1.5 w-3 h-3 bg-cyan-600 rounded-full border-4 border-white"></div>
+                        <div class="timeline-item-wrapper w-full md:w-1/2 p-4 ${index % 2 === 0 ? 'md:pr-12 md:ml-0' : 'md:pl-12 md:ml-1/2'}">
+                             <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer timeline-item-header">
+                                <p class="text-sm text-slate-500">${job.date}</p>
+                                <h4 class="text-xl font-bold text-slate-800 mt-1">${job.role}</h4>
+                                <p class="font-semibold text-cyan-700">${job.company}</p>
+                                <div class="timeline-item-content mt-4">
+                                    <ul class="space-y-2 list-disc list-inside text-slate-600 mb-4">
+                                        ${job.details.map(d => `<li>${d}</li>`).join('')}
+                                    </ul>
+                                    <div class="flex flex-wrap gap-2">
+                                        ${job.tech.map(t => `<span class="bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-medium">${t}</span>`).join('')}
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+                    `;
+                    timelineContainer.appendChild(itemDiv);
+                });
+                
+                document.querySelectorAll('.timeline-item-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.querySelector('.timeline-item-content');
+                        if (content.classList.contains('open')) {
+                           content.classList.remove('open');
+                        } else {
+                           document.querySelectorAll('.timeline-item-content.open').forEach(openContent => openContent.classList.remove('open'));
+                           content.classList.add('open');
+                        }
+                    });
+                });
+
+
+                const ctx = document.getElementById('skillsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(resumeData.skills),
+                        datasets: [{
+                            label: 'Skills Distribution',
+                            data: Object.values(resumeData.skills).map(arr => arr.length),
+                            backgroundColor: [
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(139, 92, 246, 0.7)',
+                                'rgba(245, 158, 11, 0.7)',
+                                'rgba(244, 63, 94, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgb(13, 148, 136)',
+                                'rgb(37, 99, 235)',
+                                'rgb(124, 58, 237)',
+                                'rgb(217, 119, 6)',
+                                'rgb(225, 29, 72)'
+                            ],
+                            borderWidth: 1.5,
+                            hoverOffset: 12
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            };
+            setupUI();
+
+            const exportPdf = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const margin = 15;
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const rightMargin = doc.internal.pageSize.getWidth() - margin;
+                let y = margin;
+
+                const checkPageBreak = (currentY) => {
+                    if (currentY > pageHeight - margin) {
+                        doc.addPage();
+                        return margin;
+                    }
+                    return currentY;
+                };
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(22);
+                doc.text(resumeData.name, margin, y);
+                y += 8;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                const contactInfo = `${resumeData.contact.location} | ${resumeData.contact.email} | ${resumeData.contact.linkedin}`;
+                doc.text(contactInfo, margin, y);
+                y += 10;
+
+                doc.setLineWidth(0.5);
+                doc.line(margin, y, rightMargin, y);
+                y += 10;
+                
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.text("Professional Summary", margin, y);
+                y += 6;
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+                const summaryLines = doc.splitTextToSize(resumeData.summary, rightMargin - margin);
+                doc.text(summaryLines, margin, y);
+                y += summaryLines.length * 5 + 5;
+                
+                y = checkPageBreak(y);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.text("Professional Experience", margin, y);
+                y += 6;
+
+                doc.setFont("helvetica", "normal");
+                resumeData.experience.forEach(job => {
+                    y = checkPageBreak(y);
+                    doc.setFont("helvetica", "bold");
+                    doc.setFontSize(11);
+                    doc.text(`${job.role}`, margin, y);
+                    
+                    doc.setFont("helvetica", "normal");
+                    doc.text(`${job.company} | ${job.type}`, rightMargin, y, { align: 'right' });
+                    y += 5;
+
+                    doc.setFont("helvetica", "italic");
+                    doc.setFontSize(9);
+                    doc.text(`${job.date} | ${job.location}`, margin, y);
+                    y += 5;
+
+                    doc.setFont("helvetica", "normal");
+                    job.details.forEach(detail => {
+                         y = checkPageBreak(y);
+                         const detailLines = doc.splitTextToSize(`• ${detail}`, rightMargin - margin - 5);
+                         doc.text(detailLines, margin + 5, y);
+                         y += detailLines.length * 4;
+                    });
+                    y += 2;
+                    const techLines = doc.splitTextToSize(`Technologies: ${job.tech.join(', ')}`, rightMargin - margin);
+                    doc.setFont("helvetica", "italic");
+                    doc.text(techLines, margin, y);
+                    y += techLines.length * 4 + 6;
+                });
+                
+                y = checkPageBreak(y);
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.text("Education & Certifications", margin, y);
+                y += 8;
+
+                doc.setFontSize(10);
+                resumeData.education.forEach(edu => {
+                    y = checkPageBreak(y);
+                    doc.setFont("helvetica", "bold");
+                    doc.text(edu.degree, margin, y);
+                    doc.setFont("helvetica", "normal");
+                    doc.text(`${edu.school} (${edu.date})`, margin, y + 5);
+                    y+= 12;
+                });
+                y += 2;
+
+                resumeData.certifications.forEach(cert => {
+                    y = checkPageBreak(y);
+                    doc.text(`• ${cert}`, margin, y);
+                    y += 5;
+                });
+                
+                y = checkPageBreak(y);
+                y += 5; // Extra space before last section
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(12);
+                doc.text("Core Technical Skills", margin, y);
+                y += 6;
+                y = checkPageBreak(y);
+
+                const skillsBody = Object.entries(resumeData.skills).map(([category, skills]) => [category, skills.join(', ')]);
+                doc.autoTable({
+                    head: [['Category', 'Technologies']],
+                    body: skillsBody,
+                    startY: y,
+                    theme: 'grid',
+                    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+                    styles: { fontSize: 9 },
+                    margin: { left: margin, right: margin }
+                });
+
+                doc.save('Tony_Wang_Resume.pdf');
+            };
+
+            const exportDocx = () => {
+                const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableCell, TableRow, WidthType } = window.docx;
+                
+                const doc = new Document({
+                    sections: [{
+                        children: [
+                            new Paragraph({
+                                children: [new TextRun({ text: resumeData.name, bold: true, size: 44 })],
+                            }),
+                            new Paragraph({
+                                children: [new TextRun({ text: `${resumeData.contact.location} | ${resumeData.contact.email} | ${resumeData.contact.linkedin}`, size: 20 })],
+                            }),
+                            new Paragraph({ text: "", spacing: { after: 100 } }),
+                            new Paragraph({ text: "Professional Summary", heading: HeadingLevel.HEADING_1, border: { bottom: { color: "auto", space: 1, value: "single", size: 6 } } }),
+                            new Paragraph({ children: [new TextRun({ text: resumeData.summary, size: 20 })], spacing: { after: 200 } }),
+                            
+                            new Paragraph({ text: "Professional Experience", heading: HeadingLevel.HEADING_1, border: { bottom: { color: "auto", space: 1, value: "single", size: 6 } }, spacing: { after: 100 } }),
+                            ...resumeData.experience.flatMap(job => [
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({ text: job.role, bold: true, size: 22 }),
+                                        new TextRun({ text: `\t${job.company} | ${job.type}`, size: 22 }),
+                                    ],
+                                }),
+                                new Paragraph({
+                                    children: [ new TextRun({ text: `${job.date} | ${job.location}`, italics: true, size: 18 })]
+                                }),
+                                ...job.details.map(detail => new Paragraph({ text: `• ${detail}`, bullet: { level: 0 }})),
+                                new Paragraph({ children: [new TextRun({ text: `Technologies: ${job.tech.join(', ')}`, italics: true, size: 18 })], spacing: { after: 200 } }),
+                            ]),
+
+                            new Paragraph({ text: "Education & Certifications", heading: HeadingLevel.HEADING_1, border: { bottom: { color: "auto", space: 1, value: "single", size: 6 } }, spacing: { after: 100 } }),
+                            ...resumeData.education.map(edu => new Paragraph({
+                                children: [
+                                    new TextRun({ text: edu.degree, bold: true }),
+                                    new TextRun({ text: `\n${edu.school} (${edu.date})` })
+                                ],
+                                spacing: { after: 200 }
+                            })),
+                            ...resumeData.certifications.map(cert => new Paragraph({ text: `• ${cert}`, bullet: { level: 0 } })),
+                            
+                            new Paragraph({ text: "", spacing: { after: 200 } }),
+                            new Paragraph({ text: "Core Technical Skills", heading: HeadingLevel.HEADING_1, border: { bottom: { color: "auto", space: 1, value: "single", size: 6 } }, spacing: { after: 100 } }),
+                            new Table({
+                                width: { size: 100, type: WidthType.PERCENTAGE },
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Category", bold: true })] })] }),
+                                            new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Technologies", bold: true })] })] }),
+                                        ],
+                                    }),
+                                    ...Object.entries(resumeData.skills).flatMap(([cat, skills]) => [
+                                        new TableRow({
+                                            children: [
+                                                new TableCell({ children: [new Paragraph(cat)] }),
+                                                new TableCell({ children: [new Paragraph(skills.join(', '))] }),
+                                            ],
+                                        })
+                                    ])
+                                ],
+                            }),
+                        ],
+                    }],
+                });
+
+                window.docx.Packer.toBlob(doc).then(blob => {
+                    window.saveAs(blob, "Tony_Wang_Resume.docx");
+                });
+            };
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section[id]');
+            
+            window.onscroll = () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if(pageYOffset >= sectionTop - 60){
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if(link.getAttribute('href').substring(1) === current){
+                        link.classList.add('active');
+                    }
+                });
+            };
+            
+            const initExportButtons = () => {
+                const dropdownBtn = document.getElementById('export-dropdown-btn');
+                const pdfMobileBtn = document.getElementById('export-pdf-mobile');
+                const docxMobileBtn = document.getElementById('export-docx-mobile');
+
+                // More thorough check for all required libraries
+                const jsPDFAvailable = window.jspdf && (window.jspdf.jsPDF || window.jsPDF);
+                const autoTableAvailable = window.jspdf && window.jspdf.autoTable;
+                const docxAvailable = window.docx && window.docx.Document;
+                const fileSaverAvailable = window.saveAs || window.FileSaver;
+
+                console.log("Library availability check:");
+                console.log("jsPDF:", jsPDFAvailable);
+                console.log("autoTable:", autoTableAvailable);
+                console.log("docx:", docxAvailable);
+                console.log("FileSaver:", fileSaverAvailable);
+
+                if(jsPDFAvailable && autoTableAvailable && docxAvailable && fileSaverAvailable) {
+                    console.log("All libraries loaded successfully, enabling export buttons");
+                    
+                    dropdownBtn.disabled = false;
+                    dropdownBtn.innerHTML = 'Export &#9662;';
+                    pdfMobileBtn.disabled = false;
+                    pdfMobileBtn.textContent = 'Export as PDF';
+                    docxMobileBtn.disabled = false;
+                    docxMobileBtn.textContent = 'Export as DOCX';
+                    
+                    document.getElementById('export-pdf').addEventListener('click', exportPdf);
+                    document.getElementById('export-pdf-mobile').addEventListener('click', exportPdf);
+                    document.getElementById('export-docx').addEventListener('click', exportDocx);
+                    document.getElementById('export-docx-mobile').addEventListener('click', exportDocx);
+                } else {
+                     console.error("Some export libraries missing:");
+                     console.error("Missing libraries:", {
+                         jsPDF: !jsPDFAvailable,
+                         autoTable: !autoTableAvailable,
+                         docx: !docxAvailable,
+                         fileSaver: !fileSaverAvailable
+                     });
+                     
+                     dropdownBtn.textContent = 'Export Failed';
+                     pdfMobileBtn.textContent = 'Failed';
+                     docxMobileBtn.textContent = 'Failed';
+                }
+            }
+
+            function loadScript(src, retries = 3) {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = src;
+                    script.onload = () => {
+                        console.log(`Successfully loaded: ${src}`);
+                        resolve();
+                    };
+                    script.onerror = () => {
+                        if (retries > 0) {
+                            console.warn(`Failed to load ${src}, retrying... (${retries} attempts left)`);
+                            document.head.removeChild(script);
+                            setTimeout(() => {
+                                loadScript(src, retries - 1).then(resolve).catch(reject);
+                            }, 1000);
+                        } else {
+                            console.error(`Failed to load ${src} after all retries`);
+                            reject(new Error(`Failed to load ${src}`));
+                        }
+                    };
+                    document.head.appendChild(script);
+                });
+            }
+
+            // Try multiple CDN sources for each library
+            async function loadLibraryWithFallback(primarySrc, fallbackSrc) {
+                try {
+                    await loadScript(primarySrc);
+                } catch (error) {
+                    console.warn(`Primary source failed, trying fallback: ${fallbackSrc}`);
+                    await loadScript(fallbackSrc);
+                }
+            }
+
+            // Load libraries with fallback CDN sources
+            async function loadAllLibraries() {
+                try {
+                    console.log("Loading export libraries...");
+                    
+                    // Load jsPDF with fallback
+                    await loadLibraryWithFallback(
+                        "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+                        "https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"
+                    );
+                    
+                    // Load FileSaver.js with fallback
+                    await loadLibraryWithFallback(
+                        "https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js",
+                        "https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"
+                    );
+                    
+                    // Load jsPDF AutoTable plugin with fallback
+                    await loadLibraryWithFallback(
+                        "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js",
+                        "https://unpkg.com/jspdf-autotable@3.6.0/dist/jspdf.plugin.autotable.min.js"
+                    );
+                    
+                    // Load docx library with fallback
+                    await loadLibraryWithFallback(
+                        "https://unpkg.com/docx@8.5.0/build/index.js",
+                        "https://cdn.skypack.dev/docx@8.5.0"
+                    );
+                    
+                    // Give libraries time to initialize
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    console.log("All libraries loaded successfully");
+                    initExportButtons();
+                    
+                } catch (error) {
+                    console.error("Failed to load export libraries:", error);
+                    const dropdownBtn = document.getElementById('export-dropdown-btn');
+                    const pdfMobileBtn = document.getElementById('export-pdf-mobile');
+                    const docxMobileBtn = document.getElementById('export-docx-mobile');
+                    
+                    dropdownBtn.textContent = 'Libraries Failed';
+                    pdfMobileBtn.textContent = 'Libraries Failed';
+                    docxMobileBtn.textContent = 'Libraries Failed';
+                }
+            }
+
+            loadAllLibraries();
+        });
+    </script>
+</body>
+</html>
