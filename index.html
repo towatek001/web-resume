@@ -99,6 +99,78 @@
                 max-width: 450px;
             }
         }
+
+        /* Print styles for better PDF export */
+        @media print {
+            body { 
+                background-color: white; 
+                color: black;
+                font-size: 12pt;
+                line-height: 1.4;
+            }
+            
+            header {
+                position: static !important;
+                box-shadow: none !important;
+                background: white !important;
+                border-bottom: 2px solid #333;
+                margin-bottom: 20px;
+            }
+            
+            #navbar h1 {
+                font-size: 24pt;
+                text-align: center;
+                margin: 0;
+            }
+            
+            nav .hidden, nav button, nav .dropdown {
+                display: none !important;
+            }
+            
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+            
+            section {
+                page-break-inside: avoid;
+                margin-bottom: 30px;
+            }
+            
+            h2, h3 {
+                color: #333;
+                border-bottom: 1px solid #333;
+                padding-bottom: 5px;
+            }
+            
+            .timeline-item-content {
+                max-height: none !important;
+                opacity: 1 !important;
+                display: block !important;
+            }
+            
+            .skill-tag {
+                border: 1px solid #333;
+                display: inline-block;
+                margin: 2px;
+                padding: 2px 6px;
+            }
+            
+            .chart-container {
+                display: none; /* Hide interactive charts in print */
+            }
+            
+            .bg-white {
+                background: white !important;
+                box-shadow: none !important;
+            }
+            
+            /* Ensure all timeline content is visible */
+            .timeline-item {
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -678,22 +750,66 @@
                 });
             }
 
-            // Dynamically load libraries and then initialize buttons
-            Promise.all([
-                loadScript("https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"),
-                loadScript("https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js")
-            ]).then(() => {
-                return Promise.all([
-                    loadScript("https://unpkg.com/jspdf-autotable@latest/dist/jspdf.plugin.autotable.js"),
-                    loadScript("https://unpkg.com/docx@8.5.0/build/index.js")
-                ]);
-            }).then(() => {
-                initExportButtons();
-            }).catch(error => {
-                console.error("Error loading export libraries:", error);
+            // Load libraries with more reliable CDNs and better error handling
+            async function loadExportLibraries() {
+                try {
+                    // Load jsPDF from multiple CDN sources
+                    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+                    
+                    // Load jsPDF autoTable plugin
+                    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js");
+                    
+                    // Load FileSaver.js
+                    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js");
+                    
+                    // Load docx library
+                    await loadScript("https://unpkg.com/docx@8.5.0/build/index.js");
+                    
+                    // Small delay to ensure all libraries are initialized
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    initExportButtons();
+                } catch (error) {
+                    console.error("Error loading export libraries:", error);
+                    console.log("Attempting fallback initialization...");
+                    
+                    // Fallback: Try a simpler approach with print functionality
+                    initPrintFallback();
+                }
+            }
+            
+            function initPrintFallback() {
                 const dropdownBtn = document.getElementById('export-dropdown-btn');
-                dropdownBtn.textContent = 'Export Failed';
-            });
+                const pdfMobileBtn = document.getElementById('export-pdf-mobile');
+                const docxMobileBtn = document.getElementById('export-docx-mobile');
+                
+                dropdownBtn.disabled = false;
+                dropdownBtn.innerHTML = 'Print/Save &#9662;';
+                pdfMobileBtn.disabled = false;
+                pdfMobileBtn.textContent = 'Print as PDF';
+                docxMobileBtn.disabled = false;
+                docxMobileBtn.textContent = 'Print Page';
+                
+                const printFunction = () => {
+                    // Expand all timeline items before printing
+                    const timelineItems = document.querySelectorAll('.timeline-item-content');
+                    timelineItems.forEach(item => {
+                        item.classList.add('open');
+                    });
+                    
+                    // Print after a short delay to ensure content is expanded
+                    setTimeout(() => {
+                        window.print();
+                    }, 300);
+                };
+                
+                document.getElementById('export-pdf').addEventListener('click', printFunction);
+                document.getElementById('export-pdf-mobile').addEventListener('click', printFunction);
+                document.getElementById('export-docx').addEventListener('click', printFunction);
+                document.getElementById('export-docx-mobile').addEventListener('click', printFunction);
+            }
+            
+            loadExportLibraries();
         });
     </script>
 </body>
