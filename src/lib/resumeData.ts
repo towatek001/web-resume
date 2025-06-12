@@ -35,7 +35,7 @@ export interface ResumeData {
 }
 
 export const resumeData: ResumeData = {
-  name: "Tony Tong Wang",
+  name: "Tony T. Wang",
   summary: "Senior Full-Stack Developer with 14+ years of experience architecting and deploying high-performance, scalable web applications. Proven expert in the Node.js and React ecosystems with a track record of leading development teams, driving DevOps transformations, and delivering robust solutions on Azure and AWS. Passionate about clean code and mentorship.",
   contact: {
     location: "Langley, BC",

@@ -80,7 +80,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
         <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-slate-800">{resumeData.name}</h1>
+          <div className="text-xl font-bold text-slate-800">Portfolio</div>
                       <div className="hidden md:flex items-center space-x-8">
               <a href="#experience" className="font-medium text-slate-600 hover:text-cyan-600 transition-colors cursor-pointer">
                 Experience
@@ -149,13 +149,107 @@ export default function Home() {
 
       <main className="container mx-auto px-6 py-12">
         {/* Hero Section */}
-        <section className="text-center mb-24">
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">
-            Senior Full-Stack Developer
-          </h2>
-          <p className="max-w-3xl mx-auto text-lg text-slate-600">
-            {resumeData.summary}
-          </p>
+        <section className="mb-24">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center">
+              
+              {/* Left Column - Name & Title */}
+              <div className="lg:col-span-2 text-center lg:text-left">
+                <div className="mb-6">
+                  <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-2 tracking-tight">
+                    {resumeData.name}
+                  </h1>
+                  <div className="h-1 w-24 bg-gradient-to-r from-cyan-500 to-blue-600 mx-auto lg:mx-0 mb-4"></div>
+                  <h2 className="text-2xl md:text-3xl font-semibold text-cyan-700 mb-6">
+                    Builder, Software Architect & Tech Leader
+                  </h2>
+                </div>
+                
+                {/* Key Stats */}
+                <div className="grid grid-cols-3 gap-6 mb-8">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-900">15+</div>
+                    <div className="text-sm text-slate-600 font-medium">Years Experience</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-900">50+</div>
+                    <div className="text-sm text-slate-600 font-medium">Projects Delivered</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-slate-900">5</div>
+                    <div className="text-sm text-slate-600 font-medium">AWS Certifications</div>
+                  </div>
+                </div>
+
+                                 {/* Summary Highlights */}
+                 <div className="space-y-4 text-left">
+                   <div className="flex items-start">
+                     <div className="flex-shrink-0 w-2 h-2 bg-cyan-500 rounded-full mt-3 mr-4"></div>
+                     <p className="text-slate-700 leading-relaxed">
+                       <span className="font-semibold text-slate-900">Solution Architecture:</span> Specialized in designing and building enterprise-grade, distributed software solutions that leverage cloud-native technologies to address complex challenges across finance and IoT sectors, with a focus on scalability and performance optimization.
+                     </p>
+                   </div>
+                   <div className="flex items-start">
+                     <div className="flex-shrink-0 w-2 h-2 bg-cyan-500 rounded-full mt-3 mr-4"></div>
+                     <p className="text-slate-700 leading-relaxed">
+                       <span className="font-semibold text-slate-900">Technical Leadership:</span> Proven experience directing cross-functional development teams across multiple high-impact initiatives, orchestrating comprehensive digital transformations including DevOps modernization, cloud migration strategies, and the evolution from monolithic to distributed system architectures.
+                     </p>
+                   </div>
+                 </div>
+              </div>
+
+              {/* Right Column - Contact & Skills Preview */}
+              <div className="lg:col-span-1">
+                <div className="bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
+                  <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Connect</h3>
+                  
+                  {/* Contact Info */}
+                  <div className="space-y-4 mb-6">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center mr-3">
+                        <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <span className="text-slate-700">{resumeData.contact.location}</span>
+                    </div>
+                    
+                    <a href={`mailto:${resumeData.contact.email}`} className="flex items-center group cursor-pointer">
+                      <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-emerald-200 transition-colors">
+                        <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span className="text-slate-700 group-hover:text-emerald-700 transition-colors">{resumeData.contact.email}</span>
+                    </a>
+                  </div>
+
+                  {/* Top Skills */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900 mb-3">Core Technologies</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {['React', 'Node.js', 'TypeScript', 'AWS', 'Microservices'].map((skill) => (
+                        <span key={skill} className="px-3 py-1 bg-slate-100 text-slate-700 text-sm rounded-full font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CTA */}
+                  <div className="mt-6 pt-6 border-t border-slate-200">
+                    <a 
+                      href="#contact" 
+                      className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:from-cyan-700 hover:to-blue-700 transition-colors cursor-pointer text-center block"
+                    >
+                                             Let&apos;s Connect
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Experience Section */}
