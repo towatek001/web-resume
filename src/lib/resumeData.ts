@@ -57,16 +57,12 @@ export const resumeData: ResumeData = {
       date: "2024 - Present",
       location: "Remote",
       details: [
-        "Founded and led the greenfield Unified Portal platform from day one, defining the architecture, infrastructure strategy, DevOps model, and full technology stack for a merchant portal now supporting 15 deployable apps/services and 6-7+ contributing teams in a TypeScript/pnpm monorepo.",
-        "Architected the platform around React, Vite, Module Federation, NestJS microservices, API Gateway/BFF, shared UI/API/core packages, Azure infrastructure, Docker, GitHub Actions, LaunchDarkly, Azure B2C SSO, OpenAPI, Playwright/Cucumber, Jest, SonarCloud, and Snowflake.",
-        "Designed the microfrontend shell and backend microservice architecture, enabling independent team ownership while centralizing cross-cutting concerns such as authentication, authorization, runtime configuration, i18n, observability, shared libraries, API contracts, and release standards.",
-        "Built a phased migration strategy by embedding the legacy MD2/admin application through iframe-backed legacy modules with navigation/state bridges, allowing legacy functionality to coexist inside the new microfrontend architecture while teams modernize incrementally.",
-        "Led Core team ownership of platform engineering, infrastructure, CI/CD pipelines, shared architecture standards, developer experience, AI coding-agent instructions, and governance for a rapidly growing multi-team monorepo.",
-        "Designed and evolved GitHub Actions CI/CD pipelines with dependency-aware change detection, selective app builds/tests, Docker publishing, quality gates, preview deployments, coverage reporting, E2E automation, release workflows, dry-run safety, and branch-protection integration.",
-        "Prototyped an AKS modernization POC using Helm charts, shared Kubernetes chart templates, HPA, ingress/path routing, Workload Identity, Key Vault integration, internal service discovery, and cookie-routed ephemeral PR environments; proposal is pending approval.",
-        "Evaluated and helped establish Snowflake integration through a shared NestJS package for key-pair authentication, connection pooling, query/stream execution, and feature-flagged reporting adoption."
+        "Founded and led Moneris's greenfield Unified Portal platform, defining the architecture, infrastructure strategy, DevOps model, and technology stack for a merchant portal now supporting 15 deployable apps/services across 6+ teams in a TypeScript monorepo.",
+        "Designed the microfrontend shell and backend microservice architecture, enabling independent team delivery while centralizing authentication, runtime configuration, shared libraries, API contracts, observability, and release standards.",
+        "Led Core team ownership of platform engineering, CI/CD, developer experience, and governance, including GitHub Actions pipelines for selective builds/tests, quality gates, preview deployments, Docker publishing, and release automation.",
+        "Built a phased modernization strategy to embed legacy admin functionality within the new portal and advanced platform capabilities through AKS and Snowflake integration proofs of concept."
       ],
-      tech: ["TypeScript", "pnpm", "React", "Vite", "Module Federation", "NestJS", "Microservices", "API Gateway", "BFF", "Azure", "Docker", "GitHub Actions", "LaunchDarkly", "Azure B2C", "OpenAPI", "Playwright", "Cucumber", "Jest", "SonarCloud", "Snowflake", "AKS", "Helm", "Key Vault"]
+      tech: ["TypeScript", "React", "Vite", "Module Federation", "NestJS", "Microservices", "Azure", "Docker", "GitHub Actions", "LaunchDarkly", "Azure B2C", "OpenAPI", "Playwright", "Jest", "Snowflake", "AKS", "Helm"]
     },
     {
       role: "Fullstack Software Developer",
