@@ -36,7 +36,7 @@ export interface ResumeData {
 
 export const resumeData: ResumeData = {
   name: "Tony T. Wang",
-  summary: "Senior Full-Stack and Platform Engineer with 14+ years of experience architecting scalable web applications across the React and Node.js ecosystems. Recently led Moneris's greenfield Unified Portal platform, shaping microfrontend and microservice architecture, DevOps, developer experience, and AI-friendly engineering workflows with custom agents, reusable skills, and context-optimized guidance. Proven track record delivering resilient solutions on Azure and AWS while improving code quality, team effectiveness, and modernization velocity.",
+  summary: "Senior Full-Stack and Platform Engineer with 14+ years of experience architecting scalable web applications and internal platforms across the React and Node.js ecosystems. At Moneris, led a greenfield portal platform spanning microfrontends, microservices, DevOps, and developer experience, including AI-friendly repo design, custom agent workflows, and context-engineered guidance for a large multi-team monorepo. Proven track record delivering resilient Azure and AWS solutions, modernizing legacy systems, and improving team velocity, code quality, and platform reliability.",
   contact: {
     location: "Langley, BC",
     email: "tony@towatek.com",
@@ -47,6 +47,7 @@ export const resumeData: ResumeData = {
     "Backend": ["Node.js", "NestJS", "Express.js", "Koa.js", "Java (Spring Boot)", "Microservices", "GraphQL", "REST APIs", "WebSockets"],
     "Databases & Caching": ["MongoDB", "PostgreSQL", "DynamoDB", "Redis", "Hazelcast"],
     "Cloud & DevOps": ["AWS", "Azure", "Kubernetes", "Serverless (Lambda)", "Kafka", "RabbitMQ", "CI/CD (Jenkins)", "Git", "APM (Dynatrace, Splunk)"],
+    "AI-Enabled Engineering": ["AI-Assisted Development", "Custom Agents", "Agentic Workflows", "Prompt Engineering", "Context Engineering", "Developer Experience"],
     "Testing": ["Jest", "Cypress", "Puppeteer", "Storybook"]
   },
   experience: [
@@ -59,10 +60,10 @@ export const resumeData: ResumeData = {
       details: [
         "Founded and led Moneris's greenfield Unified Portal platform, defining the architecture, infrastructure strategy, DevOps model, and technology stack for a merchant portal now supporting 15 deployable apps/services across 6+ teams in a TypeScript monorepo.",
         "Designed the microfrontend shell and backend microservice architecture, enabling independent team delivery while centralizing authentication, runtime configuration, shared libraries, API contracts, observability, and release standards.",
-        "Led Core team ownership of platform engineering, CI/CD, developer experience, and governance, including GitHub Actions pipelines, AI-friendly repo conventions, custom agent skills/workflows, and context-optimized project guidance that improved team effectiveness.",
+        "Led Core team ownership of platform engineering, CI/CD, developer experience, and governance, establishing AI-friendly repo conventions, custom agent skills/workflows, and context-engineered project guidance that made the large monorepo easier for engineers and AI coding agents to navigate and contribute to safely.",
         "Built a phased modernization strategy to embed legacy admin functionality within the new portal and advanced platform capabilities through AKS and Snowflake integration proofs of concept."
       ],
-      tech: ["TypeScript", "React", "Vite", "Module Federation", "NestJS", "Microservices", "Azure", "Docker", "GitHub Actions", "LaunchDarkly", "Azure B2C", "OpenAPI", "Playwright", "Jest", "Snowflake", "AKS", "Helm", "AI Agent Workflows"]
+      tech: ["TypeScript", "React", "Vite", "Module Federation", "NestJS", "Microservices", "Azure", "Docker", "GitHub Actions", "LaunchDarkly", "Azure B2C", "OpenAPI", "Playwright", "Jest", "Snowflake", "AKS", "Helm", "Prompt Engineering", "Context Engineering", "Agentic Workflows"]
     },
     {
       role: "Fullstack Software Developer",
