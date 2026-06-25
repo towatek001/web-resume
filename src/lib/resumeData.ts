@@ -36,7 +36,7 @@ export interface ResumeData {
 
 export const resumeData: ResumeData = {
   name: "Tony T. Wang",
-  summary: "Senior Full-Stack Developer with 14+ years of experience architecting and deploying high-performance, scalable web applications. Proven expert in the Node.js and React ecosystems with a track record of leading development teams, driving DevOps transformations, and delivering robust solutions on Azure and AWS. Passionate about clean code and mentorship.",
+  summary: "Senior Full-Stack and Platform Engineer with 14+ years of experience architecting scalable web applications across the React and Node.js ecosystems. Recently led Moneris's greenfield Unified Portal platform, shaping microfrontend and microservice architecture, DevOps, developer experience, and AI-friendly engineering workflows with custom agents, reusable skills, and context-optimized guidance. Proven track record delivering resilient solutions on Azure and AWS while improving code quality, team effectiveness, and modernization velocity.",
   contact: {
     location: "Langley, BC",
     email: "tony@towatek.com",
@@ -59,10 +59,10 @@ export const resumeData: ResumeData = {
       details: [
         "Founded and led Moneris's greenfield Unified Portal platform, defining the architecture, infrastructure strategy, DevOps model, and technology stack for a merchant portal now supporting 15 deployable apps/services across 6+ teams in a TypeScript monorepo.",
         "Designed the microfrontend shell and backend microservice architecture, enabling independent team delivery while centralizing authentication, runtime configuration, shared libraries, API contracts, observability, and release standards.",
-        "Led Core team ownership of platform engineering, CI/CD, developer experience, and governance, including GitHub Actions pipelines for selective builds/tests, quality gates, preview deployments, Docker publishing, and release automation.",
+        "Led Core team ownership of platform engineering, CI/CD, developer experience, and governance, including GitHub Actions pipelines, AI-friendly repo conventions, custom agent skills/workflows, and context-optimized project guidance that improved team effectiveness.",
         "Built a phased modernization strategy to embed legacy admin functionality within the new portal and advanced platform capabilities through AKS and Snowflake integration proofs of concept."
       ],
-      tech: ["TypeScript", "React", "Vite", "Module Federation", "NestJS", "Microservices", "Azure", "Docker", "GitHub Actions", "LaunchDarkly", "Azure B2C", "OpenAPI", "Playwright", "Jest", "Snowflake", "AKS", "Helm"]
+      tech: ["TypeScript", "React", "Vite", "Module Federation", "NestJS", "Microservices", "Azure", "Docker", "GitHub Actions", "LaunchDarkly", "Azure B2C", "OpenAPI", "Playwright", "Jest", "Snowflake", "AKS", "Helm", "AI Agent Workflows"]
     },
     {
       role: "Fullstack Software Developer",
